@@ -2,6 +2,7 @@
 
 int main(int argc, char **argv) {
     if (argc <2) {
+        print_info();
         print_help(argv[0]);
         return EXIT_SUCCESS;
     }
@@ -10,6 +11,7 @@ int main(int argc, char **argv) {
             fprintf(stdout, "AutoDialer version: %s\n", VERSION);
             break;
         case FLAG_HELP:
+            print_info();
             print_help(argv[0]);
             break;
         case FLAG_ENV:
