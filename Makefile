@@ -1,5 +1,5 @@
 CC = gcc
-FLAGS = -Wall -Wextra -O2
+FLAGS = -Wall -Wextra -Werror -O2
 TARGET = autodialer
 
 all: $(TARGET)
