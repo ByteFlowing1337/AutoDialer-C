@@ -44,8 +44,6 @@ typedef enum {
     FLAG_INVALID = -1,
     FLAG_COUNT
 } Flag;
-#define INVALID (bool)1
-#define VALID (bool)0
 
 Flag parse_flag(const char* arg) {
         if (strcmp(arg, "-h") == 0 || strcmp(arg, "--help") == 0) return FLAG_HELP;
