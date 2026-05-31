@@ -65,7 +65,7 @@ void print_info() {
 }
 
 void print_invalid_flag(const char* flag) {
-    fprintf(stderr, RED"Error:"RESET" Invalid flag '%s'. Use -h or --help for usage information.\n\n", flag);
+    fprintf(stderr, RED"Error: Invalid flag '%s'. Use -h or --help for usage information."RESET"\n\n", flag);
 }
 
 void print_help(const char* program_name) {
