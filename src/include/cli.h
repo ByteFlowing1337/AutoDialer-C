@@ -24,10 +24,10 @@
     #define VERSION "0.1.0"
 #endif
 
-static const char* DESCRIPTION = 
+const char* const DESCRIPTION = 
         "The autodialer command line utility is designed to streamline router interactions.\n\n";
 
-static const char* OPTIONS = 
+const char* const OPTIONS = 
         BOLD BLUE"options:"RESET"\n"
         BOLD"  "GREEN"-h, "CYAN"--help"RESET"           show this help message and exit\n"
         BOLD"  "GREEN"-e, "CYAN"--env "YELLOW"<KEY=VAL>"RESET"  Set environment variables (e.g., -e PANEL_PASSWORD=secret)\n"

@@ -1,5 +1,6 @@
 /* AutoDialer CLI main program*/
 #include <limits.h>
+#include <errno.h>
 #include "cli.h"
 #include "network.h"
 
@@ -11,11 +12,14 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
 }
     // Iterate through arguments and parse flags
     for(int i = 1; i < argc; i++) {
+
+
         /* -v | --version */
         if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
             flags->type = FLAG_VERSION;
             fprintf(stdout, "%s\n", VERSION);
             return EXIT_SUCCESS;
+
 
         /* -e | --env <KEY=VAL> */
         } else if (strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--env") == 0) {
@@ -47,12 +51,14 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
                 return EXIT_FAILURE;
             }
 
+
         /* -n | --attempts <N> */
         } else if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--attempts") == 0) {
             if (i + 1 < argc) {
                 char* endptr;
-                long attempts = strtol(argv[++i], &endptr, 10);
-                if (*endptr == '\0' && attempts > 0 && attempts <= UINT_MAX) {
+                errno = 0; // Check overflow of strtol
+                long long attempts = strtoll(argv[++i], &endptr, 10);
+                if (errno != ERANGE && *endptr == '\0' && attempts > 0 && (unsigned long long)attempts <= UINT_MAX) {
                     flags->attempts = (unsigned int)attempts;
                 } else {
                     print_error("Invalid number of attempts.");
@@ -63,6 +69,31 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
                 return EXIT_FAILURE;
             }
 
+
+            /* -a | --asn <ASN> */
+        } else if (strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "--asn") == 0) {
+            if (flags->actions_selected) {
+                print_error("Flags -f, -a, -c, and -d are mutually exclusive.");
+                return EXIT_FAILURE;
+            }
+            if (i + 1 < argc) {
+                char* endptr;
+                errno = 0; // Check overflow of strtol
+                long long asn = strtoll(argv[++i], &endptr, 10);
+                if (errno != ERANGE && *endptr == '\0' && asn > 0 && (unsigned long long)asn <= UINT_MAX) {
+                    flags->type = FLAG_ASN;
+                    flags->asn = (unsigned int)asn;
+                    flags->actions_selected = true;
+                } else {
+                    print_error("Invalid ASN value. Valid range is 1 to %u.", UINT_MAX);
+                    return EXIT_FAILURE;
+                }
+                } else {
+                    print_error("Expected argument after -a/--asn.");
+                    return EXIT_FAILURE;
+            }
+
+
         /* -f | --force */
         } else if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--force") == 0) {
             if (flags->actions_selected) {
@@ -71,27 +102,9 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             }
             flags->type = FLAG_FORCE;
             flags->actions_selected = true;
-        /* -a | --asn <ASN> */
-        } else if (strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "--asn") == 0) {
-            if (flags->actions_selected) {
-                print_error("Flags -f, -a, -c, and -d are mutually exclusive.");
-                return EXIT_FAILURE;
-            }
-            if (i + 1 < argc) {
-                char* endptr;
-                long asn = strtol(argv[++i], &endptr, 10);
-                if (*endptr == '\0' && asn > 0 && asn <= UINT_MAX) {
-                    flags->type = FLAG_ASN;
-                    flags->asn = (unsigned int)asn;
-                    flags->actions_selected = true;
-                } else {
-                    print_error("Invalid ASN value.");
-                    return EXIT_FAILURE;
-                }
-            } else {
-                print_error("Expected argument after -a/--asn.");
-                return EXIT_FAILURE;
-            }
+
+
+
 
         /* -c | --change */
         } else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--change") == 0) {
@@ -103,6 +116,8 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             }
             flags->type = FLAG_CHANGE;
             flags->actions_selected = true;
+
+
         /* -d | --devices */
         } else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--devices") == 0) {
             if (flags->actions_selected) {
@@ -111,6 +126,8 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             }
             flags->type = FLAG_DEVICES;
             flags->actions_selected = true;
+
+
 
         /* Invalid flag */
         } else {
@@ -123,23 +140,22 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
 
 }
 
-static void process_flags(Flags* flags) {
+static int process_flags(Flags* flags) {
     switch (flags->type) {
         case FLAG_FORCE:
-            force_reconnect(flags->attempts);
-            break;
+            return force_reconnect(flags->attempts);
         case FLAG_ASN:
-            asn_reconnect(flags->attempts, flags->asn);
-            break;
+            return asn_reconnect(flags->attempts, flags->asn);
         case FLAG_CHANGE:
-            change_ip_reconnect(flags->attempts);
-            break;
+            return change_ip_reconnect(flags->attempts);
         case FLAG_DEVICES:
-            display_connected_devices();
-            break;
+            return display_connected_devices();
         default:
-            if (flags->type == FLAG_INVALID)
+            if (flags->type == FLAG_INVALID) {
                 print_error("No valid flag provided. Use -h or --help for usage information.");
+                return EXIT_FAILURE;
+            }
+        return EXIT_SUCCESS;
     }
 }
 
@@ -153,6 +169,5 @@ int cli_main(int argc, char **argv) {
     if (result != EXIT_SUCCESS) {
         return result;
     }
-    process_flags(&flags);
-    return EXIT_SUCCESS;
+    return process_flags(&flags);
 }
