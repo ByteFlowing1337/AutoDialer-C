@@ -20,14 +20,19 @@
  ("BOLD GREEN"-f"RESET" | "BOLD GREEN"-a"RESET" "YELLOW"<ASN>"RESET" | "BOLD GREEN"-c"RESET" | "BOLD GREEN"-d"RESET")\n\n"\
 
 #define DEFAULT_ATTEMPTS 5
+
 #ifndef VERSION
     #define VERSION "0.1.0"
 #endif
 
-const char* const DESCRIPTION = 
+#ifndef PROGRAM_NAME
+    #define PROGRAM_NAME "autodialer"
+#endif
+
+static const char* const DESCRIPTION = 
         "The autodialer command line utility is designed to streamline router interactions.\n\n";
 
-const char* const OPTIONS = 
+static const char* const OPTIONS = 
         BOLD BLUE"options:"RESET"\n"
         BOLD"  "GREEN"-h, "CYAN"--help"RESET"           show this help message and exit\n"
         BOLD"  "GREEN"-e, "CYAN"--env "YELLOW"<KEY=VAL>"RESET"  Set environment variables (e.g., -e PANEL_PASSWORD=secret)\n"
