@@ -1,4 +1,5 @@
 /* AutoDialer CLI main program*/
+#include <limits.h>
 #include "cli.h"
 #include "network.h"
 
@@ -21,16 +22,21 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             if (i + 1 < argc) {
                 char* env_arg = argv[++i];
                 char* equal_sign = strchr(env_arg, '=');
-                if (equal_sign) {
+                if (equal_sign && equal_sign != env_arg && *(equal_sign + 1) != '\0') {
                     *equal_sign = '\0';
                     char* key = env_arg;
                     char* value = equal_sign + 1;
                     #if defined(_WIN32) || defined(_WIN64)
-                        _putenv_s(key, value);
+                        if (_putenv_s(key, value) != 0) {
+                            print_error("Failed to set environment variable.");
+                            return EXIT_FAILURE;
+                        }
                     #else
-                    setenv(key, value, 1);
+                    if (setenv(key, value, 1) != 0) {
+                        print_error("Failed to set environment variable.");
+                        return EXIT_FAILURE;
+                    }
                     #endif
-                    flags->type = FLAG_ENV;
                 } else {
                     print_error("Invalid environment variable format.");
                     printf("Usage: %s <KEY=VAL>\n", argv[i-1]);
@@ -46,7 +52,7 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             if (i + 1 < argc) {
                 char* endptr;
                 long attempts = strtol(argv[++i], &endptr, 10);
-                if (*endptr == '\0' && attempts > 0) {
+                if (*endptr == '\0' && attempts > 0 && attempts <= UINT_MAX) {
                     flags->attempts = (unsigned int)attempts;
                 } else {
                     print_error("Invalid number of attempts.");
@@ -74,7 +80,7 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             if (i + 1 < argc) {
                 char* endptr;
                 long asn = strtol(argv[++i], &endptr, 10);
-                if (*endptr == '\0' && asn > 0) {
+                if (*endptr == '\0' && asn > 0 && asn <= UINT_MAX) {
                     flags->type = FLAG_ASN;
                     flags->asn = (unsigned int)asn;
                     flags->actions_selected = true;

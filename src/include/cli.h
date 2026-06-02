@@ -41,7 +41,6 @@ static const char* OPTIONS =
 typedef enum {
     FLAG_HELP,
     FLAG_VERSION,
-    FLAG_ENV,
     FLAG_FORCE,
     FLAG_ASN,
     FLAG_CHANGE,

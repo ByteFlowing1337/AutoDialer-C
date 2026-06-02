@@ -4,7 +4,7 @@ TARGET = autodialer
 
 VERSION = 0.1.0
 
-INCLUDE = src/include/*
+INCLUDE = src/include/*.h
 SRC = src/cli/cli.c src/network/network.c
 
 all: $(TARGET)
