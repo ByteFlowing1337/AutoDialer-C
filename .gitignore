@@ -1,3 +1,15 @@
+# IDE
 .vscode/
+.idea/
+
+# Binaries and build artifacts
 output/
+build/
 autodialer
+autodialer.exe
+*.d
+*.o
+*.obj
+*.a
+*.so
+*.dll
