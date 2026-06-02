@@ -21,7 +21,6 @@ else
 	RM = rm -f
 endif
 
-HEADERS = $(wildcard src/include/*.h)
 OBJS = main.o cli.o network.o
 DEPS = $(OBJS:.o=.d)
 
