@@ -19,17 +19,19 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             flags->type = FLAG_HELP;
             print_help(program_name);
             return EXIT_SUCCESS;
+        }
 
 
         /* -v | --version */
-        } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
+        else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
             flags->type = FLAG_VERSION;
             fprintf(stdout, "%s\n", VERSION);
             return EXIT_SUCCESS;
+        }
 
 
         /* -e | --env <KEY=VAL> */
-        } else if (strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--env") == 0) {
+        else if (strcmp(argv[i], "-e") == 0 || strcmp(argv[i], "--env") == 0) {
             if (i + 1 >= argc) {
                 print_error("Expected argument after -e/--env.");
                 return EXIT_FAILURE;
@@ -59,10 +61,11 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
                     return EXIT_FAILURE;
                 }
             #endif
+        }
 
 
         /* -n | --attempts <N> */
-        } else if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--attempts") == 0) {
+        else if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--attempts") == 0) {
             if (i + 1 >= argc) {
                 print_error("Expected argument after -n/--attempts.");
                 return EXIT_FAILURE;
@@ -78,11 +81,11 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             }
 
             flags->attempts = (unsigned int)attempts;
+        }
 
 
-
-            /* -a | --asn <ASN> */
-        } else if (strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "--asn") == 0) {
+        /* -a | --asn <ASN> */
+        else if (strcmp(argv[i], "-a") == 0 || strcmp(argv[i], "--asn") == 0) {
             if (flags->actions_selected) {
                 print_error("Flags -f, -a, -c, and -d are mutually exclusive.");
                 return EXIT_FAILURE;
@@ -105,20 +108,22 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             flags->type = FLAG_ASN;
             flags->asn = (unsigned int)asn;
             flags->actions_selected = true;
+        }
 
 
         /* -f | --force */
-        } else if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--force") == 0) {
+        else if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--force") == 0) {
             if (flags->actions_selected) {
                 print_error("Flags -f, -a, -c, and -d are mutually exclusive.");
                 return EXIT_FAILURE;
             }
             flags->type = FLAG_FORCE;
             flags->actions_selected = true;
+        }
 
 
         /* -c | --change */
-        } else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--change") == 0) {
+        else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--change") == 0) {
             if (flags->actions_selected) {
                 print_error(
                     "Flags [-f | --force], [-a | --asn], [-c | --change], and [-d | --devices] "
@@ -127,20 +132,22 @@ static int parse_flag(int argc, char **argv, Flags* flags) {
             }
             flags->type = FLAG_CHANGE;
             flags->actions_selected = true;
+        }
 
 
         /* -d | --devices */
-        } else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--devices") == 0) {
+        else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--devices") == 0) {
             if (flags->actions_selected) {
                 print_error("Flags [-f | --force], [-a | --asn], [-c | --change], and [-d | --devices] are mutually exclusive.");
                 return EXIT_FAILURE;
             }
             flags->type = FLAG_DEVICES;
             flags->actions_selected = true;
+        }
 
 
         /* Invalid flag */
-        } else {
+        else {
             print_error("%s is not a valid option.", argv[i]);
             print_help(program_name);
             return EXIT_FAILURE;
