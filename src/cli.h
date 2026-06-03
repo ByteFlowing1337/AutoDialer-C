@@ -34,28 +34,30 @@
 #define PROGRAM_NAME "autodialer"
 #endif
 
-static const char *const DESCRIPTION =
-    "The autodialer command line utility is designed to streamline router "
-    "interactions.\n\n";
+#define DESCRIPTION                                                          \
+    "The autodialer command line utility is designed to streamline "         \
+    "router "                                                                \
+    "interactions.\n\n"
 
-static const char *const OPTIONS = BOLD BLUE
-    "options:" RESET "\n" BOLD "  " GREEN "-h, " CYAN "--help" RESET
-    "           "
-    "show this help message and exit\n" BOLD "  " GREEN "-e, " CYAN
-    "--env " YELLOW "<KEY=VAL>" RESET "  "
-    "Set environment variables (e.g., -e PANEL_PASSWORD=secret)\n" BOLD
-    "  " GREEN "-v, " CYAN "--version" RESET "        "
-    "Show the current version of AutoDialer\n" BOLD "  " GREEN "-n, " CYAN
-    "--attempts " YELLOW "<N>" RESET "   "
-    "Number of reconnection attempts before giving up (default: 5)\n" BOLD
-    "  " GREEN "-f, " CYAN "--force" RESET "          "
-    "Force a reconnection regardless of current ASN.\n" BOLD "  " GREEN
-    "-a, " CYAN "--asn " YELLOW "<ASN>" RESET "      "
-    "Reconnect until connected to the specified target ASN.\n" BOLD "  " GREEN
-    "-c, " CYAN "--change" RESET "         "
-    "Reconnect until the public IP address changes.\n" BOLD "  " GREEN
-    "-d, " CYAN "--devices" RESET "        "
-    "Display connected devices.\n\n";
+#define OPTIONS                                                              \
+    BOLD BLUE                                                                \
+        "options:" RESET "\n" BOLD "  " GREEN "-h, " CYAN "--help" RESET     \
+        "           "                                                        \
+        "show this help message and exit\n" BOLD "  " GREEN "-e, " CYAN      \
+        "--env " YELLOW "<KEY=VAL>" RESET "  "                               \
+        "Set environment variables (e.g., -e PANEL_PASSWORD=secret)\n" BOLD  \
+        "  " GREEN "-v, " CYAN "--version" RESET "        "                  \
+        "Show the current version of AutoDialer\n" BOLD "  " GREEN           \
+        "-n, " CYAN "--attempts " YELLOW "<N>" RESET "   "                   \
+        "Number of reconnection attempts before giving up (default: "        \
+        "5)\n" BOLD "  " GREEN "-f, " CYAN "--force" RESET "          "      \
+        "Force a reconnection regardless of current ASN.\n" BOLD "  " GREEN  \
+        "-a, " CYAN "--asn " YELLOW "<ASN>" RESET "      "                   \
+        "Reconnect until connected to the specified target ASN.\n" BOLD      \
+        "  " GREEN "-c, " CYAN "--change" RESET "         "                  \
+        "Reconnect until the public IP address changes.\n" BOLD "  " GREEN   \
+        "-d, " CYAN "--devices" RESET "        "                             \
+        "Display connected devices.\n\n"
 
 typedef enum
 {
@@ -66,12 +68,12 @@ typedef enum
     FLAG_CHANGE,
     FLAG_DEVICES,
     FLAG_INVALID = -1,
-} Flag;
+} Flag_type;
 
 // CLI flags (-f, -a, -c, -d) actions are mutually exclusive
 typedef struct
 {
-    Flag type;
+    Flag_type type;
     bool actions_selected;
     unsigned int attempts;
     unsigned int asn;
@@ -79,6 +81,9 @@ typedef struct
 
 int cli_main(int argc, char **argv);
 
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((format(printf, 1, 2)))
+#endif
 static inline void print_error(const char *format, ...)
 {
     va_list args;
