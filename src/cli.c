@@ -1,13 +1,14 @@
 /* AutoDialer CLI main program*/
-#include <limits.h>
-#include <errno.h>
 #include "cli.h"
 #include "network.h"
+#include <errno.h>
+#include <limits.h>
 
 static int parse_flag(int argc, char **argv, Flags *flags)
 {
     const char *program_name = argc > 0 ? argv[0] : PROGRAM_NAME;
-    if (argc < 2 || (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
+    if (argc < 2 ||
+        (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0))
     {
         flags->type = FLAG_HELP;
         print_help(program_name);
@@ -27,7 +28,8 @@ static int parse_flag(int argc, char **argv, Flags *flags)
         }
 
         /* -v | --version */
-        else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+        else if (strcmp(argv[i], "-v") == 0 ||
+                 strcmp(argv[i], "--version") == 0)
         {
             // Ignore any other flags if version is requested
             flags->type = FLAG_VERSION;
@@ -47,10 +49,12 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             char *env_arg = argv[++i];
             char *equal_sign = strchr(env_arg, '=');
 
-            if (!equal_sign || equal_sign == env_arg || *(equal_sign + 1) == '\0')
+            if (!equal_sign || equal_sign == env_arg ||
+                *(equal_sign + 1) == '\0')
             {
-                print_error("Invalid environment variable format. Expected KEY=VAL.");
-                printf("Usage: [-e | --env] <KEY=VAL>\n");
+                print_error(
+                    "Invalid environment variable format. Expected KEY=VAL.");
+                fprintf(stderr, "Usage: [-e | --env] <KEY=VAL>\n");
                 return EXIT_FAILURE;
             }
 
@@ -58,7 +62,7 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             char *key = env_arg;
             char *value = equal_sign + 1;
 
-#if defined(_WIN32) || defined(_WIN64)
+#if defined(_WIN32)
             if (_putenv_s(key, value) != 0)
             {
                 print_error("Failed to set environment variable.");
@@ -71,11 +75,11 @@ static int parse_flag(int argc, char **argv, Flags *flags)
                 return EXIT_FAILURE;
             }
 #endif
-        }
-        /* end of -e | --env */
+        } /* end of -e | --env */
 
         /* -n | --attempts <N> */
-        else if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--attempts") == 0)
+        else if (strcmp(argv[i], "-n") == 0 ||
+                 strcmp(argv[i], "--attempts") == 0)
         {
             if (i + 1 >= argc)
             {
@@ -87,9 +91,12 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             errno = 0; // Check overflow of strtol
             long long attempts = strtoll(argv[++i], &endptr, 10);
 
-            if (errno == ERANGE || *endptr != '\0' || attempts <= 0 || (unsigned long long)attempts > UINT_MAX)
+            if (errno == ERANGE || *endptr != '\0' || attempts <= 0 ||
+                (unsigned long long)attempts > UINT_MAX)
             {
-                print_error("Invalid number of attempts. Valid range is 1 to %u.", UINT_MAX);
+                print_error(
+                    "Invalid number of attempts. Valid range is 1 to %u.",
+                    UINT_MAX);
                 return EXIT_FAILURE;
             }
 
@@ -101,7 +108,8 @@ static int parse_flag(int argc, char **argv, Flags *flags)
         {
             if (flags->actions_selected)
             {
-                print_error("Flags -f, -a, -c, and -d are mutually exclusive.");
+                print_error(
+                    "Flags -f, -a, -c, and -d are mutually exclusive.");
                 return EXIT_FAILURE;
             }
 
@@ -115,9 +123,11 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             errno = 0; // Check overflow of strtol
             long long asn = strtoll(argv[++i], &endptr, 10);
 
-            if (errno == ERANGE || *endptr != '\0' || asn <= 0 || (unsigned long long)asn > UINT_MAX)
+            if (errno == ERANGE || *endptr != '\0' || asn <= 0 ||
+                (unsigned long long)asn > UINT_MAX)
             {
-                print_error("Invalid ASN value. Valid range is 1 to %u.", UINT_MAX);
+                print_error("Invalid ASN value. Valid range is 1 to %u.",
+                            UINT_MAX);
                 return EXIT_FAILURE;
             }
 
@@ -128,11 +138,13 @@ static int parse_flag(int argc, char **argv, Flags *flags)
         /* end of -a | --asn */
 
         /* -f | --force */
-        else if (strcmp(argv[i], "-f") == 0 || strcmp(argv[i], "--force") == 0)
+        else if (strcmp(argv[i], "-f") == 0 ||
+                 strcmp(argv[i], "--force") == 0)
         {
             if (flags->actions_selected)
             {
-                print_error("Flags -f, -a, -c, and -d are mutually exclusive.");
+                print_error(
+                    "Flags -f, -a, -c, and -d are mutually exclusive.");
                 return EXIT_FAILURE;
             }
             flags->type = FLAG_FORCE;
@@ -140,13 +152,14 @@ static int parse_flag(int argc, char **argv, Flags *flags)
         }
 
         /* -c | --change */
-        else if (strcmp(argv[i], "-c") == 0 || strcmp(argv[i], "--change") == 0)
+        else if (strcmp(argv[i], "-c") == 0 ||
+                 strcmp(argv[i], "--change") == 0)
         {
             if (flags->actions_selected)
             {
-                print_error(
-                    "Flags [-f | --force], [-a | --asn], [-c | --change], and [-d | --devices] "
-                    "are mutually exclusive.");
+                print_error("Flags [-f | --force], [-a | --asn], [-c | "
+                            "--change], and [-d | --devices] "
+                            "are mutually exclusive.");
                 return EXIT_FAILURE;
             }
             flags->type = FLAG_CHANGE;
@@ -154,11 +167,14 @@ static int parse_flag(int argc, char **argv, Flags *flags)
         }
 
         /* -d | --devices */
-        else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--devices") == 0)
+        else if (strcmp(argv[i], "-d") == 0 ||
+                 strcmp(argv[i], "--devices") == 0)
         {
             if (flags->actions_selected)
             {
-                print_error("Flags [-f | --force], [-a | --asn], [-c | --change], and [-d | --devices] are mutually exclusive.");
+                print_error(
+                    "Flags [-f | --force], [-a | --asn], [-c | --change], "
+                    "and [-d | --devices] are mutually exclusive.");
                 return EXIT_FAILURE;
             }
             flags->type = FLAG_DEVICES;
@@ -191,7 +207,8 @@ static int process_flags(Flags *flags)
     default:
         if (flags->type == FLAG_INVALID)
         {
-            print_error("No valid flag provided. Use -h or --help for usage information.");
+            print_error("No valid flag provided. Use -h or --help for usage "
+                        "information.");
             return EXIT_FAILURE;
         }
         return EXIT_SUCCESS;
@@ -200,11 +217,10 @@ static int process_flags(Flags *flags)
 
 int cli_main(int argc, char **argv)
 {
-    Flags flags = {
-        .type = FLAG_INVALID,
-        .actions_selected = false,
-        .attempts = DEFAULT_ATTEMPTS,
-        .asn = 0};
+    Flags flags = {.type = FLAG_INVALID,
+                   .actions_selected = false,
+                   .attempts = DEFAULT_ATTEMPTS,
+                   .asn = 0};
     int result = parse_flag(argc, argv, &flags);
     if (result != EXIT_SUCCESS)
     {

@@ -15,7 +15,11 @@ CFLAGS = \
 
 ifeq ($(OS),Windows_NT)
 	TARGET = autodialer.exe
-	RM = del /Q
+	ifdef COMSPEC
+		RM = del /Q
+	else
+		RM = rm -f
+	endif
 else
 	TARGET = autodialer
 	RM = rm -f
@@ -34,10 +38,10 @@ $(TARGET): $(OBJS)
 main.o: src/main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-cli.o: src/cli/cli.c
+cli.o: src/cli.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-network.o: src/network/network.c
+network.o: src/network.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 -include $(DEPS)
