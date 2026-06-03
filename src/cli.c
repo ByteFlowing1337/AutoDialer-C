@@ -20,6 +20,7 @@ static int parse_flag(int argc, char **argv, Config *config)
     };
     int opt;
     int action_flags_count = 0;
+    optind = 1;
     while ((opt = getopt_long(argc, argv, "hve:n:fa:cd", long_options,
                               NULL)) != -1)
     {
