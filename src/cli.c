@@ -63,18 +63,23 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             char *value = equal_sign + 1;
 
 #if defined(_WIN32)
-            if (_putenv_s(key, value) != 0)
+            errno_t error_num = _putenv_s(key, value);
+            if (error_num != 0)
             {
-                print_error("Failed to set environment variable.");
+                print_error("Failed to set environment variable: %s",
+                            strerror(error_num));
                 return EXIT_FAILURE;
             }
 #else
-            if (setenv(key, value, 1) != 0)
+            int error_num = setenv(key, value, 1);
+            if (error_num != 0)
             {
-                print_error("Failed to set environment variable.");
+                print_error("Failed to set environment variable: %s",
+                            strerror(error_num));
                 return EXIT_FAILURE;
             }
 #endif
+            continue;
         } /* end of -e | --env */
 
         /* -n | --attempts <N> */
@@ -101,6 +106,7 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             }
 
             flags->attempts = (unsigned int)attempts;
+            continue;
         }
 
         /* -a | --asn <ASN> */
@@ -134,6 +140,7 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             flags->type = FLAG_ASN;
             flags->asn = (unsigned int)asn;
             flags->actions_selected = true;
+            continue;
         }
         /* end of -a | --asn */
 
@@ -149,6 +156,7 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             }
             flags->type = FLAG_FORCE;
             flags->actions_selected = true;
+            continue;
         }
 
         /* -c | --change */
@@ -164,6 +172,7 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             }
             flags->type = FLAG_CHANGE;
             flags->actions_selected = true;
+            continue;
         }
 
         /* -d | --devices */
@@ -179,6 +188,7 @@ static int parse_flag(int argc, char **argv, Flags *flags)
             }
             flags->type = FLAG_DEVICES;
             flags->actions_selected = true;
+            continue;
         }
 
         /* Invalid flag */
@@ -221,6 +231,7 @@ int cli_main(int argc, char **argv)
                    .actions_selected = false,
                    .attempts = DEFAULT_ATTEMPTS,
                    .asn = 0};
+    asm("int3");
     int result = parse_flag(argc, argv, &flags);
     if (result != EXIT_SUCCESS)
     {
