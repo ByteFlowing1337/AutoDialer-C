@@ -98,7 +98,7 @@ static inline void print_error(const char *format, ...)
     va_end(args);
 }
 
-static inline void print_help()
+static inline void print_help(void)
 {
     fprintf(stdout, "%s %s\n\n", "AutoDialer", VERSION);
     fprintf(stdout, "%s", DESCRIPTION);

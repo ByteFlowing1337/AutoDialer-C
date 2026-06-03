@@ -2,7 +2,7 @@
 #include "cli.h"
 #include "network.h" // force_reconnect, asn_reconnect, change_ip_reconnect, display_connected_devices
 #include <errno.h>   // errno, ERANGE
-#include <getopt.h> // getopt_long, option, optarg, no_argument, required_argument
+#include <getopt.h> // getopt_long, option, optarg, optind, no_argument, required_argument
 #include <limits.h> // UINT_MAX
 
 static int parse_flag(int argc, char **argv, Config *config)
@@ -28,12 +28,12 @@ static int parse_flag(int argc, char **argv, Config *config)
         /* -h | --help */
         case 'h':
             print_help();
-            return EXIT_SUCCESS;
+            exit(EXIT_SUCCESS);
 
         /* -v | --version */
         case 'v': {
             fprintf(stdout, "%s\n", VERSION);
-            return EXIT_SUCCESS;
+            exit(EXIT_SUCCESS);
         }
 
         /* -e | --env <KEY=VAL> */
@@ -137,6 +137,12 @@ static int parse_flag(int argc, char **argv, Config *config)
             print_usage();
             return EXIT_FAILURE;
         }
+    }
+    if (optind < argc)
+    {
+        print_error("Unexpected argument: %s", argv[optind]);
+        print_usage();
+        return EXIT_FAILURE;
     }
     if (action_flags_count > 1)
     {
