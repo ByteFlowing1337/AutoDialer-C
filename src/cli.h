@@ -1,11 +1,11 @@
 /* CLI_H */
 #ifndef CLI_H
 #define CLI_H
-#include <stdarg.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdarg.h>  //va_start, va_end
+#include <stdbool.h> // bool, true, false
+#include <stdio.h>   // fprintf, stderr, stdout
+#include <stdlib.h>  // EXIT_SUCCESS, EXIT_FAILURE, strtoul, setenv
+#include <string.h>  // strchr, stderror
 #define RESET "\033[0m"
 #define BOLD "\033[1m"
 #define RED "\033[31m"
@@ -61,23 +61,20 @@
 
 typedef enum
 {
-    FLAG_HELP,
-    FLAG_VERSION,
-    FLAG_FORCE,
-    FLAG_ASN,
-    FLAG_CHANGE,
-    FLAG_DEVICES,
-    FLAG_INVALID = -1,
-} Flag_type;
+    ACTION_FORCE,
+    ACTION_ASN,
+    ACTION_CHANGE,
+    ACTION_DEVICES,
+    ACTION_INVALID = -1,
+} Action_type;
 
 // CLI flags (-f, -a, -c, -d) actions are mutually exclusive
 typedef struct
 {
-    Flag_type type;
-    bool actions_selected;
+    Action_type action;
     unsigned int attempts;
     unsigned int asn;
-} Flags;
+} Config;
 
 int cli_main(int argc, char **argv);
 
@@ -101,11 +98,16 @@ static inline void print_error(const char *format, ...)
     va_end(args);
 }
 
-static inline void print_help(const char *program_name)
+static inline void print_help(void)
 {
     fprintf(stdout, "%s %s\n\n", "AutoDialer", VERSION);
     fprintf(stdout, "%s", DESCRIPTION);
-    fprintf(stdout, USAGE_FLAGS, program_name);
+    fprintf(stdout, USAGE_FLAGS, PROGRAM_NAME);
     fprintf(stdout, "%s", OPTIONS);
+}
+
+static inline void print_usage(void)
+{
+    fprintf(stdout, USAGE_FLAGS, PROGRAM_NAME);
 }
 #endif // CLI_H
